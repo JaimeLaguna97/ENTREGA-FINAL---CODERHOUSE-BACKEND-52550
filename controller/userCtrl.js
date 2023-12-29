@@ -428,6 +428,8 @@ const userCart = asyncHandler(async (req, res) => {
     }
   });
 
+  // APPLY COUPON
+
   const applyCoupon = asyncHandler(async (req, res) => {
     const { coupon } = req.body;
     const { _id } = req.user;
@@ -451,6 +453,8 @@ const userCart = asyncHandler(async (req, res) => {
     );
     res.json(totalAfterDiscount);
   });
+
+  //CREATE ORDER
   
   const createOrder = asyncHandler(async (req, res) => {
     const { COD, couponApplied } = req.body;
@@ -495,6 +499,30 @@ const userCart = asyncHandler(async (req, res) => {
     }
   });
 
+  //MODIFY USER ROLE
+
+  const modifyUserRole = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { role } = req.body;
+    validateMongoDbId(id);
+    try {
+      const user = await User.findById(id);
+      if (user) {
+        console.log('User found:', user);
+        user.role = role;
+        if (!Array.isArray(user.address)) {
+          user.address = '';
+        }
+        const updatedRole = await user.save();
+        res.json(updatedRole);
+      } else {
+        res.status(404).json({ message: 'User not found' });
+      }
+    } catch (error) {
+      res.status(500).json({ message: 'Internal Server Error' });
+    }
+  });
+
 module.exports = { 
     createUser, 
     loginUserCtrl, 
@@ -517,4 +545,5 @@ module.exports = {
     emptyCart,
     applyCoupon,
     createOrder,
+    modifyUserRole,
 };
